@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speed Friending</title>
+<style>
+*{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(145deg,#fff8ef,#f3f0ff);color:#252238;display:flex;justify-content:center}
+.app{width:min(680px,100%);padding:28px 18px 44px} header{text-align:center;margin:12px 0 26px}.emoji{font-size:44px}h1{font-size:clamp(34px,8vw,52px);margin:4px 0 6px;letter-spacing:-1.5px}.subtitle{margin:0 auto;max-width:500px;color:#69657a;font-size:16px;line-height:1.5}
+.card{background:rgba(255,255,255,.9);border:1px solid rgba(40,35,70,.09);border-radius:24px;padding:22px;box-shadow:0 12px 35px rgba(55,45,95,.09);margin-bottom:16px}
+.categories{display:grid;grid-template-columns:1fr 1fr;gap:12px}button{border:0;border-radius:17px;padding:17px 14px;font:inherit;font-weight:750;cursor:pointer;background:#f0edf8;color:#302b48;transition:transform .12s,box-shadow .12s}button:active{transform:scale(.98)}button:hover{box-shadow:0 7px 18px rgba(40,35,70,.12)}.cat span{display:block;font-size:26px;margin-bottom:5px}.cat small{display:block;font-weight:500;color:#777286;margin-top:3px}
+.question{text-align:center;padding:30px 20px}.pill{display:inline-block;padding:7px 11px;border-radius:999px;background:#f0edf8;color:#615b78;font-size:13px;font-weight:750}#questionText{font-size:clamp(24px,6vw,36px);line-height:1.22;margin:22px 0 26px;letter-spacing:-.5px}.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.primary{background:#29233f;color:white;min-width:190px}.secondary{background:#eeeaf6}.back{margin-top:10px;width:100%;background:transparent;color:#706b7e;padding:10px}.tip{font-size:14px;line-height:1.5;color:#6f6a7b;text-align:center;margin:14px 4px 0}footer{text-align:center;color:#8a8594;font-size:12px;margin-top:22px}@media(max-width:430px){.categories{grid-template-columns:1fr}.card{padding:17px}}
+</style>
+</head>
+<body>
+<main class="app">
+<header><div class="emoji">✨</div><h1>Speed-friending</h1></header>
+<section id="home" class="card"><div id="categories" class="categories"></div><p class="tip">💡 Don't like a question? Just tap “Another one”.</p></section>
+<section id="questionCard" class="card question" hidden><div id="categoryPill" class="pill"></div><div id="questionText"></div><div class="actions"><button class="primary" onclick="nextQuestion()">🔄 Another one</button><button class="secondary" onclick="shuffleCategory()">🎲 New category</button></div><button class="back" onclick="goHome()">← Back to categories</button></section>
+<footer>Made for a social, not an interview. Ask follow-ups. Be curious. Have fun.</footer>
+</main>
+
+<script>
+// ============================================================
+// ✏️ EDIT THIS SECTION ONLY!
+// Change category names, descriptions and questions.
+// Everything else can stay exactly as it is.
+// ============================================================
+
+const questionSets = [
+  {
+    name: "🌱 Easy & funny",
+    description: "Break the ice",
+    questions: [
+      "What’s something you could easily talk about for 20mins without preparation?",
+      "What’s something you currently try to get better at?",
+      "If you could instantly be good at a skill, what would you pick?",
+      "If you would get 1 million euro tomorrow but you must spend it within a day, what would you do?",
+      "If you could only buy stuff from three supermarket isles util the rest of your life, which would you pick?",
+      "Which kitchen utensil would you be?",
+      "What major would you never study not even for money?",
+      "What’s your favorite thing about where you grew up?",
+      "What’s something you always have in your fridge?",
+      "What’s your favorite way to procrastinate?",
+      "If you were in prison tomorrow, what would your friends expect you have done?"
+]
+  },
+  {
+    name: "💬 Debatey/Philosophical",
+    description: "",
+    questions: [
+      "What’s something society deems ‘good’ but you disagree?",
+      "Do you believe in free will?",
+      "What’s something society takes way too seriously?",
+      "What’s something you believe in even though you can’t rationally justify it?",
+      "What’s something you would change immediately about your university or study program if you could?",
+      "Which modern object would you bring back 300 years into the past?",
+      "If you are the first person an alien would encounter, what would you tell them about humanity?",
+      "Is changing your mind a sign of strength or weakness, why?",
+      "What’s more important to you in a discussion, understanding the other person or being understood?",
+      "Is being good about intentions or impact?",
+      "If you had to organize a protest what would it be for?",
+      "What are the biggest risks of ’othering’ (creating an us vs them narrative)?",
+      "What is a course everyone should take in life?",
+      "What are you hoping to learn from debate?",
+      "Can an AI make art?",
+      "What is your take on effective altruism (=most effective way to help others)?"
+]
+  },
+  {
+    name: "🫶 Get to know you",
+    description: "A little deeper",
+    questions: [
+      "When do you feel most authentically yourself?",
+      "If you had a warning sign, what would it say?",
+      "What’s something you wish people would ask you more about?",
+      "What’s one stereotype about you that’s lowkey true?",
+      "What piece of advice would give your younger self?",
+      "What’s something you know you want to change but it's too hard to actually change right now?",
+      "What experience has changed how you see others?",
+      "What matters less to you than it did a couple years ago?",
+      "When do you feel the most disconnected to yourself?",
+      "What would you say makes someone a genuinely good person?",
+      "What’s something you think we should talk more openly about because everyone struggles with it?",
+      "What makes home to you?",
+      "What kind of person do you want to become?",
+      "In which situations do you feel the most connected to others?",
+      "What helps you when you are overstimulated to calm down?",
+      "What are you the most proud of?",
+      "What is something small you notice most people usually don't?"
+]
+  }
+];
+
+// ============================================================
+// DON'T EDIT BELOW THIS LINE
+// ============================================================
+
+let current = null, last = null;
+
+function buildCategories() {
+  const container = document.getElementById("categories");
+  questionSets.forEach((set, index) => {
+    const button = document.createElement("button");
+    button.className = "cat";
+    const match = set.name.match(/^(\S+)\s+(.*)$/);
+    button.innerHTML = `<span>${match ? match[1] : "💬"}</span>${match ? match[2] : set.name}<small>${set.description}</small>`;
+    button.onclick = () => pick(index);
+    container.appendChild(button);
+  });
+}
+function pick(index) { current = index; last = null; showQuestion(); }
+function randomQuestion() {
+  const list = questionSets[current].questions;
+  let q;
+  do { q = list[Math.floor(Math.random() * list.length)]; }
+  while (list.length > 1 && q === last);
+  last = q;
+  return q;
+}
+function showQuestion() {
+  document.getElementById("home").hidden = true;
+  document.getElementById("questionCard").hidden = false;
+  document.getElementById("categoryPill").textContent = questionSets[current].name;
+  document.getElementById("questionText").textContent = randomQuestion();
+}
+function nextQuestion() { showQuestion(); }
+function goHome() {
+  document.getElementById("questionCard").hidden = true;
+  document.getElementById("home").hidden = false;
+}
+function shuffleCategory() {
+  let next;
+  do { next = Math.floor(Math.random() * questionSets.length); }
+  while (questionSets.length > 1 && next === current);
+  current = next; last = null; showQuestion();
+}
+buildCategories();
+</script>
+</body>
+</html>
